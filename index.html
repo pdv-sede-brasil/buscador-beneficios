@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis beneficios 2027 - Preuniversitario Pedro de Valdivia</title>
+  <style>
+    :root {
+      --amarillo: #FFD200;
+      --amarillo-suave: #FFF3BF;
+      --negro: #111111;
+      --blanco: #FFFFFF;
+      --gris: #555555;
+      --borde: #111111;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--blanco);
+      color: var(--negro);
+      font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px 60px;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+    }
+    .header {
+      border-bottom: 3px solid var(--amarillo);
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+      text-align: center;
+    }
+    .header img {
+      max-width: 160px;
+      max-height: 70px;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 18px;
+      margin: 0 0 4px;
+      line-height: 1.3;
+    }
+    .header p {
+      margin: 0;
+      color: var(--gris);
+      font-size: 14px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 14px 0 6px;
+    }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--negro);
+      border-radius: 8px;
+      font-size: 15px;
+      background: var(--blanco);
+      color: var(--negro);
+    }
+    input:focus { outline: 2px solid var(--amarillo); }
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 13px;
+      border: 2px solid var(--negro);
+      border-radius: 8px;
+      background: var(--amarillo);
+      color: var(--negro);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: #ffc400; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    button.secundario {
+      background: var(--blanco);
+    }
+    .ayuda {
+      font-size: 12px;
+      color: var(--gris);
+      margin-top: 6px;
+    }
+    .resultado {
+      display: none;
+      margin-top: 24px;
+      border: 2px solid var(--negro);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .resultado .fila {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+    .resultado .fila:last-child { border-bottom: none; }
+    .resultado .fila b { text-align: right; }
+    .beneficio-extra {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--amarillo-suave);
+      border: 1px solid var(--amarillo);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .beneficio-extra-item {
+      font-weight: 600;
+      padding: 4px 0;
+    }
+    .beneficio-extra-item:not(:last-child) {
+      border-bottom: 1px dashed var(--amarillo);
+      margin-bottom: 4px;
+      padding-bottom: 8px;
+    }
+    .mas-beneficios {
+      margin: 14px 0 0;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .chip {
+      display: inline-block;
+      background: var(--amarillo-suave);
+      border: 1px solid var(--amarillo);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .mensaje {
+      display: none;
+      margin-top: 24px;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--negro);
+      font-size: 14px;
+    }
+    .mensaje.error { background: #fff0f0; }
+    .mensaje.ok { background: var(--amarillo-suave); }
+    .spinner {
+      display: none;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--gris);
+    }
+    .form-contacto { display: none; margin-top: 16px; }
+    .form-contacto input { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <img src="logo.jpg" alt="Preuniversitario Pedro de Valdivia">
+      <h1>Mis beneficios 2027 - Preuniversitario Pedro de Valdivia</h1>
+      <p>Ingresa tu RUT y nombre para ver el descuento que te corresponde.</p>
+    </div>
+
+    <div id="formBusqueda">
+      <label for="rut">RUT (con o sin puntos/guión)</label>
+      <input id="rut" placeholder="12345678-9" autocomplete="off">
+
+      <label for="nombre">Nombre y apellido</label>
+      <input id="nombre" placeholder="Ej: Boris García" autocomplete="off">
+      <div class="ayuda">No importa si escribes con o sin tildes, o si falta un apellido.</div>
+
+      <button id="btnBuscar" onclick="buscar()">Buscar mi beneficio</button>
+    </div>
+
+    <div class="spinner" id="spinner">Buscando...</div>
+
+    <div class="mensaje error" id="msgError"></div>
+
+    <div class="resultado" id="resultado">
+      <div class="chip" id="chipEstado">Beneficio encontrado</div>
+      <div class="fila"><span>Colegio</span><b id="rColegio">—</b></div>
+      <div class="fila"><span>Descuento</span><b id="rDescuento">—</b></div>
+      <div class="fila"><span>Código de cupón</span><b id="rCupon">—</b></div>
+
+      <div class="beneficio-extra">
+        <div class="beneficio-extra-item">🎓 Matrícula gratis</div>
+        <div class="beneficio-extra-item">📈 15% de descuento por continuidad de estudios</div>
+      </div>
+
+      <p class="mas-beneficios">¿Quieres conocer más beneficios? Solicita más información a nuestras asesoras.</p>
+
+      <button class="secundario" id="btnContactar" onclick="mostrarFormContacto()">Quiero que me contacten</button>
+
+      <div class="form-contacto" id="formContacto">
+        <label for="telefono">Tu teléfono</label>
+        <input id="telefono" placeholder="+56 9 1234 5678">
+        <label for="email">Tu email</label>
+        <input id="email" placeholder="tu@correo.com">
+        <button onclick="enviarContacto()">Enviar</button>
+      </div>
+    </div>
+
+    <div class="mensaje ok" id="msgContactoOk">¡Listo! Te vamos a contactar pronto.</div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwb8qmm1nI_r2imT9kisCVzJEzB41ZdjvkjhTy8phKnojnimbxEHEfD_hV6e5iafbRX/exec";
+    let ultimoResultado = null;
+
+    function llamarApi(params) {
+      const qs = new URLSearchParams(params).toString();
+      return fetch(API_URL + '?' + qs, { method: 'GET', redirect: 'follow', credentials: 'omit' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('http ' + r.status);
+          return r.json();
+        });
+    }
+
+    function buscar() {
+      const rut = document.getElementById('rut').value.trim();
+      const nombre = document.getElementById('nombre').value.trim();
+      const msgError = document.getElementById('msgError');
+      const resultado = document.getElementById('resultado');
+      const msgContactoOk = document.getElementById('msgContactoOk');
+
+      msgError.style.display = 'none';
+      resultado.style.display = 'none';
+      msgContactoOk.style.display = 'none';
+
+      if (!rut) {
+        msgError.textContent = 'Por favor ingresa tu RUT.';
+        msgError.style.display = 'block';
+        return;
+      }
+
+      document.getElementById('spinner').style.display = 'block';
+      document.getElementById('btnBuscar').disabled = true;
+
+      llamarApi({ action: 'buscar', rut: rut, nombre: nombre })
+        .then(function (resp) { mostrarResultado(resp); })
+        .catch(function () {
+          document.getElementById('spinner').style.display = 'none';
+          document.getElementById('btnBuscar').disabled = false;
+          msgError.textContent = 'Ocurrió un error al buscar. Intenta nuevamente.';
+          msgError.style.display = 'block';
+        });
+    }
+
+    function mostrarResultado(resp) {
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('btnBuscar').disabled = false;
+      const msgError = document.getElementById('msgError');
+
+      if (!resp.encontrado) {
+        msgError.textContent = 'No encontramos tus datos. Verifica tu RUT y nombre, o contáctanos directamente.';
+        msgError.style.display = 'block';
+        return;
+      }
+
+      ultimoResultado = resp;
+      const resultado = document.getElementById('resultado');
+      const chip = document.getElementById('chipEstado');
+
+      if (resp.pendienteRevision) {
+        chip.textContent = 'En revisión';
+        document.getElementById('rColegio').textContent = resp.colegio || '—';
+        document.getElementById('rDescuento').textContent = 'Por confirmar';
+        document.getElementById('rCupon').textContent = 'Por confirmar';
+      } else {
+        chip.textContent = 'Beneficio encontrado';
+        document.getElementById('rColegio').textContent = resp.colegio || '—';
+        document.getElementById('rDescuento').textContent = resp.descuento || '—';
+        document.getElementById('rCupon').textContent = resp.cupon || '—';
+      }
+
+      resultado.style.display = 'block';
+    }
+
+    function mostrarFormContacto() {
+      document.getElementById('formContacto').style.display = 'block';
+      document.getElementById('btnContactar').style.display = 'none';
+    }
+
+    function enviarContacto() {
+      if (!ultimoResultado) return;
+      const telefono = document.getElementById('telefono').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const boton = document.querySelector('#formContacto button');
+      boton.disabled = true;
+
+      llamarApi({
+        action: 'contacto',
+        fila: ultimoResultado.fila,
+        nombre: ultimoResultado.nombre,
+        telefono: telefono,
+        email: email
+      })
+        .then(function (resp) {
+          if (resp && resp.ok) {
+            document.getElementById('formContacto').style.display = 'none';
+            document.getElementById('msgContactoOk').style.display = 'block';
+          } else {
+            boton.disabled = false;
+            alert('No se pudo enviar tu solicitud, intenta nuevamente.');
+          }
+        })
+        .catch(function () {
+          boton.disabled = false;
+          alert('No se pudo enviar tu solicitud, intenta nuevamente.');
+        });
+    }
+  </script>
+</body>
+</html>
